@@ -5,7 +5,7 @@ import axios from 'axios';
 const Dashboard = () => {
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
-    const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo' }); // Default status as lowercase
+    const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo' });
     const [isFormVisible, setIsFormVisible] = useState(false);
 
     useEffect(() => {
@@ -23,6 +23,8 @@ const Dashboard = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        // Debugging: Log the input change to see what is being set
+        console.log(`Updating ${name} to ${value}`);
         setNewTask({ ...newTask, [name]: value });
     };
 
@@ -32,11 +34,13 @@ const Dashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Debugging: Log the newTask state before submission
+        console.log("Submitting task:", newTask);
         try {
             const response = await axios.post('http://localhost:5000/user/task', newTask, { withCredentials: true });
             setTasks([...tasks, response.data]);
-            setNewTask({ title: '', description: '', status: 'todo' }); // Reset the form with default status
-            setIsFormVisible(false); // Hide the form after submission
+            setNewTask({ title: '', description: '', status: 'todo' });
+            setIsFormVisible(false);
         } catch (err) {
             setError(err.response?.data?.message || 'Error creating task');
         }
@@ -45,13 +49,12 @@ const Dashboard = () => {
     const handleDelete = async (taskId) => {
         try {
             await axios.delete(`http://localhost:5000/user/task/${taskId}`, { withCredentials: true });
-            setTasks(tasks.filter(task => task._id !== taskId)); // Remove the deleted task from state
+            setTasks(tasks.filter(task => task._id !== taskId));
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
         }
     };
 
-    // Function to categorize tasks
     const categorizeTasks = (status) => tasks.filter(task => task.status === status);
 
     return (
@@ -99,7 +102,6 @@ const Dashboard = () => {
                 </form>
             )}
 
-            {/* Task Categories */}
             <div className="grid grid-cols-3 gap-4">
                 <div className="border p-4">
                     <h2 className="text-xl font-semibold">To Do</h2>
