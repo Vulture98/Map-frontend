@@ -5,10 +5,9 @@ import axios from 'axios';
 const Dashboard = () => {
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
-    const [newTask, setNewTask] = useState({ title: '', description: '' });
+    const [newTask, setNewTask] = useState({ title: '', description: '', status: 'todo' }); // Default status as lowercase
     const [isFormVisible, setIsFormVisible] = useState(false);
 
-    // Fetch tasks when the component mounts
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -22,31 +21,27 @@ const Dashboard = () => {
         fetchTasks();
     }, []);
 
-    // Handle input changes for the task form
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewTask({ ...newTask, [name]: value });
     };
 
-    // Toggle the visibility of the task form
     const handleFormToggle = () => {
         setIsFormVisible(!isFormVisible);
     };
 
-    // Handle form submission to add a new task
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:5000/user/task', newTask, { withCredentials: true });
             setTasks([...tasks, response.data]);
-            setNewTask({ title: '', description: '' }); // Reset the form
+            setNewTask({ title: '', description: '', status: 'todo' }); // Reset the form with default status
             setIsFormVisible(false); // Hide the form after submission
         } catch (err) {
             setError(err.response?.data?.message || 'Error creating task');
         }
     };
 
-    // Function to delete a task
     const handleDelete = async (taskId) => {
         try {
             await axios.delete(`http://localhost:5000/user/task/${taskId}`, { withCredentials: true });
@@ -55,6 +50,9 @@ const Dashboard = () => {
             setError(err.response?.data?.message || 'Error deleting task');
         }
     };
+
+    // Function to categorize tasks
+    const categorizeTasks = (status) => tasks.filter(task => task.status === status);
 
     return (
         <div className="p-4">
@@ -85,27 +83,82 @@ const Dashboard = () => {
                         required
                         className="border p-2 mb-2 w-full"
                     />
+                    <select 
+                        name="status" 
+                        value={newTask.status} 
+                        onChange={handleInputChange} 
+                        className="border p-2 mb-2 w-full"
+                    >
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
                     <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
                         Add Task
                     </button>
                 </form>
             )}
-            <ul>
-                {tasks.map(task => (
-                    <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
-                        <div>
-                            <h2 className="font-semibold">{task.title}</h2>
-                            <p>{task.description}</p>
-                        </div>
-                        <button 
-                            onClick={() => handleDelete(task._id)} 
-                            className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
-                        >
-                            Delete
-                        </button>
-                    </li>
-                ))}
-            </ul>
+
+            {/* Task Categories */}
+            <div className="grid grid-cols-3 gap-4">
+                <div className="border p-4">
+                    <h2 className="text-xl font-semibold">To Do</h2>
+                    <ul>
+                        {categorizeTasks('todo').map(task => (
+                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-semibold">{task.title}</h3>
+                                    <p>{task.description}</p>
+                                </div>
+                                <button 
+                                    onClick={() => handleDelete(task._id)} 
+                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
+                                >
+                                    Delete
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="border p-4">
+                    <h2 className="text-xl font-semibold">In Progress</h2>
+                    <ul>
+                        {categorizeTasks('in-progress').map(task => (
+                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-semibold">{task.title}</h3>
+                                    <p>{task.description}</p>
+                                </div>
+                                <button 
+                                    onClick={() => handleDelete(task._id)} 
+                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
+                                >
+                                    Delete
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="border p-4">
+                    <h2 className="text-xl font-semibold">Done</h2>
+                    <ul>
+                        {categorizeTasks('done').map(task => (
+                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-semibold">{task.title}</h3>
+                                    <p>{task.description}</p>
+                                </div>
+                                <button 
+                                    onClick={() => handleDelete(task._id)} 
+                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
+                                >
+                                    Delete
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
         </div>
     );
 };
