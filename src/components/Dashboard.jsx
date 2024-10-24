@@ -1,4 +1,3 @@
-// src/components/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -23,8 +22,6 @@ const Dashboard = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        // Debugging: Log the input change to see what is being set
-        console.log(`Updating ${name} to ${value}`);
         setNewTask({ ...newTask, [name]: value });
     };
 
@@ -34,33 +31,29 @@ const Dashboard = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Debugging: Log the newTask state before submission
-        console.log("Submitting task:", newTask);
         try {
             const response = await axios.post('http://localhost:5000/user/task', newTask, { withCredentials: true });
             setTasks([...tasks, response.data]);
-            setNewTask({ title: '', description: '', status: 'todo' });
+            setNewTask({ title: '', description: '', status: 'todo' }); // Resetting form
             setIsFormVisible(false);
         } catch (err) {
             setError(err.response?.data?.message || 'Error creating task');
         }
     };
 
-    const handleDelete = async (taskId) => {
+    const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/user/task/${taskId}`, { withCredentials: true });
-            setTasks(tasks.filter(task => task._id !== taskId));
+            await axios.delete(`http://localhost:5000/user/task/${id}`, { withCredentials: true });
+            setTasks(tasks.filter(task => task._id !== id)); // Update the state to remove the deleted task
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
         }
     };
 
-    const categorizeTasks = (status) => tasks.filter(task => task.status === status);
-
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Your Tasks</h1>
-            {error && <div className="text-red-500 mb-2">{error}</div>}
+            {error && <div className="text-red-500">{error}</div>}
             <button 
                 className="bg-blue-500 text-white px-4 py-2 rounded mb-4" 
                 onClick={handleFormToggle}
@@ -86,13 +79,13 @@ const Dashboard = () => {
                         required
                         className="border p-2 mb-2 w-full"
                     />
-                    <select 
-                        name="status" 
-                        value={newTask.status} 
-                        onChange={handleInputChange} 
+                    <select
+                        name="status"
+                        value={newTask.status}
+                        onChange={handleInputChange}
                         className="border p-2 mb-2 w-full"
                     >
-                        <option value="todo">To Do</option>
+                        <option value="todo">To-Do</option>
                         <option value="in-progress">In Progress</option>
                         <option value="done">Done</option>
                     </select>
@@ -101,65 +94,28 @@ const Dashboard = () => {
                     </button>
                 </form>
             )}
-
             <div className="grid grid-cols-3 gap-4">
-                <div className="border p-4">
-                    <h2 className="text-xl font-semibold">To Do</h2>
-                    <ul>
-                        {categorizeTasks('todo').map(task => (
-                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-semibold">{task.title}</h3>
-                                    <p>{task.description}</p>
-                                </div>
-                                <button 
-                                    onClick={() => handleDelete(task._id)} 
-                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
-                                >
-                                    Delete
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="border p-4">
-                    <h2 className="text-xl font-semibold">In Progress</h2>
-                    <ul>
-                        {categorizeTasks('in-progress').map(task => (
-                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-semibold">{task.title}</h3>
-                                    <p>{task.description}</p>
-                                </div>
-                                <button 
-                                    onClick={() => handleDelete(task._id)} 
-                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
-                                >
-                                    Delete
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="border p-4">
-                    <h2 className="text-xl font-semibold">Done</h2>
-                    <ul>
-                        {categorizeTasks('done').map(task => (
-                            <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-semibold">{task.title}</h3>
-                                    <p>{task.description}</p>
-                                </div>
-                                <button 
-                                    onClick={() => handleDelete(task._id)} 
-                                    className="bg-red-500 text-white px-4 py-1 ml-4 rounded"
-                                >
-                                    Delete
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {['todo', 'in-progress', 'done'].map(status => (
+                    <div key={status} className="border p-2">
+                        <h2 className="font-semibold capitalize">{status.replace('-', ' ')}</h2>
+                        <ul>
+                            {tasks.filter(task => task.status === status).map(task => (
+                                <li key={task._id} className="border p-2 mb-2 flex justify-between items-center">
+                                    <div>
+                                        <h3 className="font-semibold">{task.title}</h3>
+                                        <p>{task.description}</p>
+                                    </div>
+                                    <button 
+                                        className="bg-red-500 text-white px-2 py-1 rounded"
+                                        onClick={() => handleDelete(task._id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
         </div>
     );
