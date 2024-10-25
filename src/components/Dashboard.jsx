@@ -3,6 +3,7 @@ import axios from 'axios';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const Dashboard = () => {
+    const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/user/task', { withCredentials: true });
+                const response = await axios.get(`${apiUrl}/user/task`, { withCredentials: true });
                 setTasks(response.data || []);
             } catch (err) {
                 setError(err.response?.data?.message || 'Error fetching tasks');
@@ -23,7 +24,7 @@ const Dashboard = () => {
         };
 
         fetchTasks();
-    }, []);
+    }, [apiUrl]); // Add apiUrl as a dependency
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -42,11 +43,11 @@ const Dashboard = () => {
         e.preventDefault();
         try {
             if (editingTaskId) {
-                const response = await axios.put(`http://localhost:5000/user/task/${editingTaskId}`, newTask, { withCredentials: true });
+                const response = await axios.put(`${apiUrl}/user/task/${editingTaskId}`, newTask, { withCredentials: true });
                 setTasks(tasks.map(task => (task._id === editingTaskId ? response.data : task)));
                 setEditingTaskId(null);
             } else {
-                const response = await axios.post('http://localhost:5000/user/task', newTask, { withCredentials: true });
+                const response = await axios.post(`${apiUrl}/user/task`, newTask, { withCredentials: true });
                 setTasks([...tasks, response.data]);
             }
             setNewTask({ title: '', description: '', status: 'todo' });
@@ -58,7 +59,7 @@ const Dashboard = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/user/task/${id}`, { withCredentials: true });
+            await axios.delete(`${apiUrl}/user/task/${id}`, { withCredentials: true });
             setTasks(tasks.filter(task => task._id !== id));
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
@@ -108,7 +109,7 @@ const Dashboard = () => {
 
         // Update in backend
         axios.put(
-            `http://localhost:5000/user/task/${draggableId}`,
+            `${apiUrl}/user/task/${draggableId}`,
             { status: destination.droppableId },
             { withCredentials: true }
         ).catch(err => {
