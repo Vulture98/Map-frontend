@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
+  const loginUrl = `${apiUrl}/api/users/auth`
+  console.log(`"apiUrl":`, apiUrl);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null); // State to handle errors
@@ -15,7 +17,9 @@ const Login = () => {
     setError(null); // Reset error state on new login attempt
 
     try {      
-      const response = await axios.post(`${apiUrl}/api/users/auth`, { 
+      console.log(`"loginUrl":`, loginUrl);      
+      const response = await axios.post(loginUrl, { 
+        // const response = await axios.post(`http://localhost:5000/api/users/auth`, { 
         email, 
         password 
       }, { withCredentials: true }); // Include credentials to handle cookies

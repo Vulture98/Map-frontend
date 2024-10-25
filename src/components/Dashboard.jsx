@@ -3,7 +3,10 @@ import axios from 'axios';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const Dashboard = () => {
-    const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
+    const apiUrl = import.meta.env.VITE_API_URL; // Base API URL
+    const loginUrl = `${apiUrl}/api/users/auth`; // Login URL
+    const newTaskUrl = `${apiUrl}/user/task`; // New task URL
+
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
@@ -24,7 +27,7 @@ const Dashboard = () => {
         };
 
         fetchTasks();
-    }, [apiUrl]); // Add apiUrl as a dependency
+    }, [apiUrl]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -43,11 +46,13 @@ const Dashboard = () => {
         e.preventDefault();
         try {
             if (editingTaskId) {
-                const response = await axios.put(`${apiUrl}/user/task/${editingTaskId}`, newTask, { withCredentials: true });
+                // Update existing task
+                const response = await axios.put(`${newTaskUrl}/${editingTaskId}`, newTask, { withCredentials: true });
                 setTasks(tasks.map(task => (task._id === editingTaskId ? response.data : task)));
                 setEditingTaskId(null);
             } else {
-                const response = await axios.post(`${apiUrl}/user/task`, newTask, { withCredentials: true });
+                // Add new task
+                const response = await axios.post(newTaskUrl, newTask, { withCredentials: true });
                 setTasks([...tasks, response.data]);
             }
             setNewTask({ title: '', description: '', status: 'todo' });
@@ -59,7 +64,7 @@ const Dashboard = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${apiUrl}/user/task/${id}`, { withCredentials: true });
+            await axios.delete(`${newTaskUrl}/${id}`, { withCredentials: true });
             setTasks(tasks.filter(task => task._id !== id));
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
@@ -81,7 +86,7 @@ const Dashboard = () => {
             destination.droppableId === source.droppableId &&
             destination.index === source.index
         ) {
-            return;
+            return; // No movement
         }
 
         const updatedTasks = Array.from(tasks);
@@ -91,9 +96,7 @@ const Dashboard = () => {
 
         // Remove the task from its current position
         const newTasks = updatedTasks.filter(task => task._id !== draggableId);
-
-        // Update the task's status
-        movedTask.status = destination.droppableId;
+        movedTask.status = destination.droppableId; // Update task status
 
         // Insert the task at its new position
         const tasksInDestination = newTasks.filter(t => t.status === destination.droppableId);
@@ -107,9 +110,9 @@ const Dashboard = () => {
 
         setTasks(newTasks);
 
-        // Update in backend
+        // Update backend
         axios.put(
-            `${apiUrl}/user/task/${draggableId}`,
+            `${newTaskUrl}/${draggableId}`,
             { status: destination.droppableId },
             { withCredentials: true }
         ).catch(err => {
@@ -182,36 +185,24 @@ const Dashboard = () => {
                                 <div
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
-                                    className={`bg-white p-4 rounded-lg shadow min-h-[200px] ${
-                                        snapshot.isDraggingOver ? 'bg-gray-50' : ''
-                                    }`}
+                                    className={`bg-white p-4 rounded-lg shadow min-h-[200px] ${snapshot.isDraggingOver ? 'bg-gray-50' : ''}`}
                                 >
-                                    <h2 className="font-semibold capitalize mb-4">
-                                        {status.replace('-', ' ')}
-                                    </h2>
+                                    <h2 className="font-semibold capitalize mb-4">{status.replace('-', ' ')}</h2>
                                     {tasks
                                         .filter(task => task.status === status)
                                         .map((task, index) => (
-                                            <Draggable
-                                                key={task._id}
-                                                draggableId={task._id}
-                                                index={index}
-                                            >
+                                            <Draggable key={task._id} draggableId={task._id} index={index}>
                                                 {(provided, snapshot) => (
                                                     <div
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
-                                                        className={`border p-3 rounded mb-2 ${
-                                                            snapshot.isDragging ? 'bg-gray-50 shadow-lg' : 'bg-white'
-                                                        }`}
+                                                        className={`border p-3 rounded mb-2 ${snapshot.isDragging ? 'bg-gray-50 shadow-lg' : 'bg-white'}`}
                                                     >
                                                         <div className="flex justify-between items-start">
                                                             <div>
                                                                 <h3 className="font-semibold">{task.title}</h3>
-                                                                <p className="text-gray-600 text-sm mt-1">
-                                                                    {task.description}
-                                                                </p>
+                                                                <p className="text-gray-600 text-sm mt-1">{task.description}</p>
                                                             </div>
                                                             <div className="flex space-x-2">
                                                                 <button
@@ -244,3 +235,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+``
