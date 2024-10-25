@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for draggable items and droppable areas */
+.dragging {
+    opacity: 0.7; /* Slightly transparent when dragging */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+}
+
+.droppable {
+    background-color: #f9fafb; /* Light gray background */
+    border: 1px dashed #e5e7eb; /* Dashed border for droppable area */
+    padding: 1rem; /* Padding for spacing */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.droppable h2 {
+    font-weight: bold; /* Bold title for each column */
+}
