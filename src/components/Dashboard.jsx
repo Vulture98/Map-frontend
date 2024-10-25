@@ -131,7 +131,7 @@ const Dashboard = () => {
             {error && <div className="text-red-500 mb-4">{error}</div>}
             
             <button 
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 transition-colors" 
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 mr-4 transition-colors" 
                 onClick={handleFormToggle}
             >
                 {isFormVisible ? 'Cancel' : 'Add Task'}
@@ -206,13 +206,13 @@ const Dashboard = () => {
                                                     <h3 className="font-semibold">{task.title}</h3>
                                                     <p>{task.description}</p>
                                                     <button 
-                                                        className="text-red-500 hover:underline"
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded mr-2 mt-2 hover:underline"
                                                         onClick={() => handleDelete(task._id)}
                                                     >
                                                         Delete
                                                     </button>
                                                     <button 
-                                                        className="text-blue-500 hover:underline"
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mt-2hover:underline"
                                                         onClick={() => handleEdit(task)}
                                                     >
                                                         Edit

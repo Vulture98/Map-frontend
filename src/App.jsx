@@ -1,27 +1,27 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
-import Register from './components/Register'; // Assume you will create this later
-import NotFound from './components/NotFound';
+import { ToastContainer } from 'react-toastify'; // For toast notifications
 
 const App = () => {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen"> {/* Full height and flex column */}
         <Header />
-        <main className="flex-grow">
+        <main className="flex-grow"> {/* Main area grows to fill space */}
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/register" element={<Register />} /> {/* Register route */}
-            <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
         <Footer />
+        <ToastContainer /> {/* Toast notifications */}
       </div>
     </Router>
   );
