@@ -100,7 +100,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       await axios.post(logoutUrl, {}, { withCredentials: true });
-      toast.success("Login successful!"); // Show success message
+      toast.success("Logout successful!"); // Show success message
 
       navigate("/");
     } catch (err) {
