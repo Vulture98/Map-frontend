@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 const Dashboard = () => {
     const apiUrl = import.meta.env.VITE_API_URL; // Base API URL
     const loginUrl = `${apiUrl}/api/users/auth`; // Login URL
     const newTaskUrl = `${apiUrl}/user/task`; // New task URL
+    const editTaskUrl = `${apiUrl}/user/task`; // Edit task URL
+    const deleteTaskUrl = `${apiUrl}/user/task`; // Delete task URL
+    const logoutUrl = `${apiUrl}/api/users/logout`; // Logout URL
+
+    const navigate = useNavigate(); // Use the useNavigate hook for navigation
 
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
@@ -17,7 +23,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await axios.get(`${apiUrl}/user/task`, { withCredentials: true });
+                const response = await axios.get(newTaskUrl, { withCredentials: true });
                 setTasks(response.data || []);
             } catch (err) {
                 setError(err.response?.data?.message || 'Error fetching tasks');
@@ -27,7 +33,7 @@ const Dashboard = () => {
         };
 
         fetchTasks();
-    }, [apiUrl]);
+    }, [newTaskUrl]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -47,7 +53,7 @@ const Dashboard = () => {
         try {
             if (editingTaskId) {
                 // Update existing task
-                const response = await axios.put(`${newTaskUrl}/${editingTaskId}`, newTask, { withCredentials: true });
+                const response = await axios.put(`${editTaskUrl}/${editingTaskId}`, newTask, { withCredentials: true });
                 setTasks(tasks.map(task => (task._id === editingTaskId ? response.data : task)));
                 setEditingTaskId(null);
             } else {
@@ -64,7 +70,7 @@ const Dashboard = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${newTaskUrl}/${id}`, { withCredentials: true });
+            await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
             setTasks(tasks.filter(task => task._id !== id));
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
@@ -75,6 +81,15 @@ const Dashboard = () => {
         setNewTask({ title: task.title, description: task.description, status: task.status });
         setEditingTaskId(task._id);
         setIsFormVisible(true);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await axios.post(logoutUrl, {}, { withCredentials: true });
+            navigate('/'); // Redirect to homepage after logout
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error logging out');
+        }
     };
 
     const handleDragEnd = (result) => {
@@ -112,7 +127,7 @@ const Dashboard = () => {
 
         // Update backend
         axios.put(
-            `${newTaskUrl}/${draggableId}`,
+            `${editTaskUrl}/${draggableId}`,
             { status: destination.droppableId },
             { withCredentials: true }
         ).catch(err => {
@@ -137,6 +152,13 @@ const Dashboard = () => {
                 onClick={handleFormToggle}
             >
                 {isFormVisible ? 'Cancel' : 'Add Task'}
+            </button>
+
+            <button 
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mb-4 transition-colors" 
+                onClick={handleLogout}
+            >
+                Logout
             </button>
 
             {isFormVisible && (
@@ -206,14 +228,14 @@ const Dashboard = () => {
                                                             </div>
                                                             <div className="flex space-x-2">
                                                                 <button
-                                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-sm transition-colors"
                                                                     onClick={() => handleEdit(task)}
+                                                                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
                                                                 >
                                                                     Edit
                                                                 </button>
                                                                 <button
-                                                                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm transition-colors"
                                                                     onClick={() => handleDelete(task._id)}
+                                                                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
                                                                 >
                                                                     Delete
                                                                 </button>
@@ -235,4 +257,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-``
