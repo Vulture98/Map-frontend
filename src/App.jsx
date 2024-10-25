@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Register from './components/Register'; // Assume you will create this later
+import NotFound from './components/NotFound';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/register" element={<Register />} /> {/* Register route */}
+            <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
           </Routes>
         </main>
         <Footer />

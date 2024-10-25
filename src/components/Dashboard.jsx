@@ -183,48 +183,50 @@ const Dashboard = () => {
             )}
 
             <DragDropContext onDragEnd={handleDragEnd}>
-                {/* Create a separate Droppable for each column */}
-                {columns.map(column => (
-                    <Droppable key={column} droppableId={column}>
-                        {(provided) => (
-                            <div 
-                                className="w-1/3 p-2" 
-                                ref={provided.innerRef} 
-                                {...provided.droppableProps}
-                            >
-                                <h2 className="text-lg font-bold mb-2 capitalize">{column}</h2>
-                                {tasks.filter(task => task.status === column).map((task, index) => (
-                                    <Draggable key={task._id} draggableId={task._id} index={index}>
-                                        {(provided) => (
-                                            <div 
-                                                className="border p-2 mb-2 bg-white rounded shadow" 
-                                                ref={provided.innerRef} 
-                                                {...provided.draggableProps} 
-                                                {...provided.dragHandleProps}
-                                            >
-                                                <h3 className="font-semibold">{task.title}</h3>
-                                                <p>{task.description}</p>
-                                                <button 
-                                                    className="text-red-500 hover:underline"
-                                                    onClick={() => handleDelete(task._id)}
+                <div className="flex space-x-4"> {/* Flex container for columns */}
+                    {/* Create a separate Droppable for each column */}
+                    {columns.map(column => (
+                        <Droppable key={column} droppableId={column}>
+                            {(provided) => (
+                                <div 
+                                    className="w-1/3 p-2" 
+                                    ref={provided.innerRef} 
+                                    {...provided.droppableProps}
+                                >
+                                    <h2 className="text-lg font-bold mb-2 capitalize">{column}</h2>
+                                    {tasks.filter(task => task.status === column).map((task, index) => (
+                                        <Draggable key={task._id} draggableId={task._id} index={index}>
+                                            {(provided) => (
+                                                <div 
+                                                    className="border p-2 mb-2 bg-white rounded shadow" 
+                                                    ref={provided.innerRef} 
+                                                    {...provided.draggableProps} 
+                                                    {...provided.dragHandleProps}
                                                 >
-                                                    Delete
-                                                </button>
-                                                <button 
-                                                    className="text-blue-500 hover:underline"
-                                                    onClick={() => handleEdit(task)}
-                                                >
-                                                    Edit
-                                                </button>
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder} {/* Placeholder for proper spacing */}
-                            </div>
-                        )}
-                    </Droppable>
-                ))}
+                                                    <h3 className="font-semibold">{task.title}</h3>
+                                                    <p>{task.description}</p>
+                                                    <button 
+                                                        className="text-red-500 hover:underline"
+                                                        onClick={() => handleDelete(task._id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                    <button 
+                                                        className="text-blue-500 hover:underline"
+                                                        onClick={() => handleEdit(task)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder} {/* Placeholder for proper spacing */}
+                                </div>
+                            )}
+                        </Droppable>
+                    ))}
+                </div>
             </DragDropContext>
         </div>
     );

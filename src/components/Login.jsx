@@ -1,11 +1,11 @@
 // src/components/Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
 
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
-  const loginUrl = `${apiUrl}/api/users/auth`
+  const loginUrl = `${apiUrl}/api/users/auth`;
   console.log(`"apiUrl":`, apiUrl);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,10 +16,9 @@ const Login = () => {
     e.preventDefault();
     setError(null); // Reset error state on new login attempt
 
-    try {      
-      console.log(`"loginUrl":`, loginUrl);      
+    try {
+      console.log(`"loginUrl":`, loginUrl);
       const response = await axios.post(loginUrl, { 
-        // const response = await axios.post(`http://localhost:5000/api/users/auth`, { 
         email, 
         password 
       }, { withCredentials: true }); // Include credentials to handle cookies
@@ -61,6 +60,10 @@ const Login = () => {
           Login
         </button>
       </form>
+      <p className="mt-4"> {/* Add margin-top for spacing */}
+        Not a user?{' '}
+        <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
+      </p>
     </div>
   );
 };
