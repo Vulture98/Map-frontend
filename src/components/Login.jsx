@@ -1,10 +1,12 @@
 // src/components/Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
+import { toast } from 'react-toastify'; // Import toast
 
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
+  const loginUrl = `${apiUrl}/api/users/auth`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null); // State to handle errors
@@ -14,21 +16,19 @@ const Login = () => {
     e.preventDefault();
     setError(null); // Reset error state on new login attempt
 
-    try {      
-      const response = await axios.post(`${apiUrl}/api/users/auth`, { 
+    try {
+      const response = await axios.post(loginUrl, { 
         email, 
         password 
       }, { withCredentials: true }); // Include credentials to handle cookies
 
       // Handle successful login (JWT token is handled as a cookie)
-      console.log('Login successful:', response.data);
-      
-      // Redirect to the dashboard
+      toast.success('Login successful!'); // Show success message
       navigate('/dashboard'); // Change to your dashboard route
     } catch (err) {
       // Handle errors here
-      console.error('Login failed:', err);
       setError('Invalid email or password. Please try again.');
+      toast.error('Login failed. Please check your credentials.'); // Show error message
     }
   };
 
@@ -57,6 +57,10 @@ const Login = () => {
           Login
         </button>
       </form>
+      <p className="mt-4">
+        Not a user?{' '}
+        <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
+      </p>
     </div>
   );
 };

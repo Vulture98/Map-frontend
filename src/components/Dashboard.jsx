@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const newTaskUrl = `${apiUrl}/user/task`;
+    const editTaskUrl = `${apiUrl}/user/task`;
+    const deleteTaskUrl = `${apiUrl}/user/task`;
+    const logoutUrl = `${apiUrl}/api/users/logout`;
+
+    const navigate = useNavigate();
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
@@ -14,7 +21,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTasks = async () => {
             try {
-                const response = await axios.get(`${apiUrl}/user/task`, { withCredentials: true });
+                const response = await axios.get(newTaskUrl, { withCredentials: true });
                 setTasks(response.data || []);
             } catch (err) {
                 setError(err.response?.data?.message || 'Error fetching tasks');
@@ -22,9 +29,8 @@ const Dashboard = () => {
                 setLoading(false);
             }
         };
-
         fetchTasks();
-    }, [apiUrl]); // Add apiUrl as a dependency
+    }, [newTaskUrl]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -43,11 +49,11 @@ const Dashboard = () => {
         e.preventDefault();
         try {
             if (editingTaskId) {
-                const response = await axios.put(`${apiUrl}/user/task/${editingTaskId}`, newTask, { withCredentials: true });
+                const response = await axios.put(`${editTaskUrl}/${editingTaskId}`, newTask, { withCredentials: true });
                 setTasks(tasks.map(task => (task._id === editingTaskId ? response.data : task)));
                 setEditingTaskId(null);
             } else {
-                const response = await axios.post(`${apiUrl}/user/task`, newTask, { withCredentials: true });
+                const response = await axios.post(newTaskUrl, newTask, { withCredentials: true });
                 setTasks([...tasks, response.data]);
             }
             setNewTask({ title: '', description: '', status: 'todo' });
@@ -59,7 +65,7 @@ const Dashboard = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${apiUrl}/user/task/${id}`, { withCredentials: true });
+            await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
             setTasks(tasks.filter(task => task._id !== id));
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting task');
@@ -72,49 +78,43 @@ const Dashboard = () => {
         setIsFormVisible(true);
     };
 
+    const handleLogout = async () => {
+        try {
+            await axios.post(logoutUrl, {}, { withCredentials: true });
+            navigate('/');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error logging out');
+        }
+    };
+
     const handleDragEnd = (result) => {
         const { destination, source, draggableId } = result;
 
-        if (!destination || !tasks.length) return;
-
-        if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-        ) {
-            return;
+        if (!destination || destination.index === source.index && destination.droppableId === source.droppableId) {
+            return; // Do nothing if dropped outside or in the same place
         }
 
+        // Update task status
         const updatedTasks = Array.from(tasks);
         const movedTask = updatedTasks.find(task => task._id === draggableId);
-        
-        if (!movedTask) return;
+        movedTask.status = destination.droppableId; // Update status based on destination
 
-        // Remove the task from its current position
-        const newTasks = updatedTasks.filter(task => task._id !== draggableId);
+        // Remove the task from its original position
+        updatedTasks.splice(source.index, 1);
+        // Insert it at its new position
+        updatedTasks.splice(destination.index, 0, movedTask);
 
-        // Update the task's status
-        movedTask.status = destination.droppableId;
+        setTasks(updatedTasks); // Update state
 
-        // Insert the task at its new position
-        const tasksInDestination = newTasks.filter(t => t.status === destination.droppableId);
-        const insertIndex = Math.min(destination.index, tasksInDestination.length);
-        
-        newTasks.splice(
-            newTasks.findIndex(t => t.status === destination.droppableId) + insertIndex,
-            0,
-            movedTask
-        );
-
-        setTasks(newTasks);
-
-        // Update in backend
+        // Update backend with new status
         axios.put(
-            `${apiUrl}/user/task/${draggableId}`,
+            `${editTaskUrl}/${draggableId}`,
             { status: destination.droppableId },
             { withCredentials: true }
         ).catch(err => {
             setError(err.response?.data?.message || 'Error updating task status');
-            setTasks(updatedTasks); // Revert on error
+            // Revert state in case of error
+            setTasks(tasks);
         });
     };
 
@@ -122,6 +122,7 @@ const Dashboard = () => {
         return <div className="p-4">Loading tasks...</div>;
     }
 
+    // Define columns for the drag-and-drop interface
     const columns = ['todo', 'in-progress', 'done'];
 
     return (
@@ -130,10 +131,17 @@ const Dashboard = () => {
             {error && <div className="text-red-500 mb-4">{error}</div>}
             
             <button 
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 transition-colors" 
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-4 mr-4 transition-colors" 
                 onClick={handleFormToggle}
             >
                 {isFormVisible ? 'Cancel' : 'Add Task'}
+            </button>
+
+            <button 
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mb-4 transition-colors" 
+                onClick={handleLogout}
+            >
+                Logout
             </button>
 
             {isFormVisible && (
@@ -175,64 +183,45 @@ const Dashboard = () => {
             )}
 
             <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {columns.map(status => (
-                        <Droppable key={status} droppableId={status}>
-                            {(provided, snapshot) => (
-                                <div
-                                    ref={provided.innerRef}
+                <div className="flex space-x-4"> {/* Flex container for columns */}
+                    {/* Create a separate Droppable for each column */}
+                    {columns.map(column => (
+                        <Droppable key={column} droppableId={column}>
+                            {(provided) => (
+                                <div 
+                                    className="w-1/3 p-2" 
+                                    ref={provided.innerRef} 
                                     {...provided.droppableProps}
-                                    className={`bg-white p-4 rounded-lg shadow min-h-[200px] ${
-                                        snapshot.isDraggingOver ? 'bg-gray-50' : ''
-                                    }`}
                                 >
-                                    <h2 className="font-semibold capitalize mb-4">
-                                        {status.replace('-', ' ')}
-                                    </h2>
-                                    {tasks
-                                        .filter(task => task.status === status)
-                                        .map((task, index) => (
-                                            <Draggable
-                                                key={task._id}
-                                                draggableId={task._id}
-                                                index={index}
-                                            >
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className={`border p-3 rounded mb-2 ${
-                                                            snapshot.isDragging ? 'bg-gray-50 shadow-lg' : 'bg-white'
-                                                        }`}
+                                    <h2 className="text-lg font-bold mb-2 capitalize">{column}</h2>
+                                    {tasks.filter(task => task.status === column).map((task, index) => (
+                                        <Draggable key={task._id} draggableId={task._id} index={index}>
+                                            {(provided) => (
+                                                <div 
+                                                    className="border p-2 mb-2 bg-white rounded shadow" 
+                                                    ref={provided.innerRef} 
+                                                    {...provided.draggableProps} 
+                                                    {...provided.dragHandleProps}
+                                                >
+                                                    <h3 className="font-semibold">{task.title}</h3>
+                                                    <p>{task.description}</p>
+                                                    <button 
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded mr-2 mt-2 hover:underline"
+                                                        onClick={() => handleDelete(task._id)}
                                                     >
-                                                        <div className="flex justify-between items-start">
-                                                            <div>
-                                                                <h3 className="font-semibold">{task.title}</h3>
-                                                                <p className="text-gray-600 text-sm mt-1">
-                                                                    {task.description}
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex space-x-2">
-                                                                <button
-                                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-sm transition-colors"
-                                                                    onClick={() => handleEdit(task)}
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                                <button
-                                                                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm transition-colors"
-                                                                    onClick={() => handleDelete(task._id)}
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        ))}
-                                    {provided.placeholder}
+                                                        Delete
+                                                    </button>
+                                                    <button 
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mt-2hover:underline"
+                                                        onClick={() => handleEdit(task)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder} {/* Placeholder for proper spacing */}
                                 </div>
                             )}
                         </Droppable>
