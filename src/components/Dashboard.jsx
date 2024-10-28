@@ -80,8 +80,10 @@ const Dashboard = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
-      setTasks(tasks.filter((task) => task._id !== id));
+      if (window.confirm("Are you sure you want to delete this task?")) {
+        await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
+        setTasks(tasks.filter((task) => task._id !== id));
+      }      
     } catch (err) {
       setError(err.response?.data?.message || "Error deleting task");
     }
