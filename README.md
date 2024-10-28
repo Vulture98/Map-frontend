@@ -3,6 +3,10 @@
 
 This is the frontend of the Map Project, built using React.js. The application provides a user-friendly interface for managing tasks, featuring authentication and a responsive design.
 
+## Link to backend
+
+https://github.com/Vulture98/Map-backend
+
 ## Live Demo
 
 You can view the live application here: [Map Project](https://map-frontend-d6yw.vercel.app/)
@@ -44,6 +48,9 @@ Make sure you have the following installed on your machine:
 
 ### Installation
 
-1. Clone the repository:
+1. Clone this(frontend) repository:
    ```bash
-   git clone <insert_frontend_github_url>
+   git clone https://github.com/Vulture98/Map-frontend.git
+2. Clone the backend repository:
+   ```bash
+   git clone https://github.com/Vulture98/Map-backend.git
