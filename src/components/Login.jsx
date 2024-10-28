@@ -8,8 +8,8 @@ import GoogleLoginComponent from "./GoogleLoginComponent";
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
   const loginUrl = `${apiUrl}/api/users/auth`;
-  const [email, setEmail] = useState("banana@example.com");
-  const [password, setPassword] = useState("banana");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(null); // State to handle errors
   const navigate = useNavigate(); // Hook for navigation
 
