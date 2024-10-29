@@ -111,40 +111,41 @@ const Dashboard = () => {
   };
 
   const handleDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
+    console.log(`handleDrag `);
+    // const { destination, source, draggableId } = result;
 
-    if (
-      !destination ||
-      (destination.index === source.index &&
-        destination.droppableId === source.droppableId)
-    ) {
-      return; // Do nothing if dropped outside or in the same place
-    }
+    // if (
+    //   !destination ||
+    //   (destination.index === source.index &&
+    //     destination.droppableId === source.droppableId)
+    // ) {
+    //   return; // Do nothing if dropped outside or in the same place
+    // }
 
-    // Update task status
-    const updatedTasks = Array.from(tasks);
-    const movedTask = updatedTasks.find((task) => task._id === draggableId);
-    movedTask.status = destination.droppableId; // Update status based on destination
+    // // Update task status
+    // const updatedTasks = Array.from(tasks);
+    // const movedTask = updatedTasks.find((task) => task._id === draggableId);
+    // movedTask.status = destination.droppableId; // Update status based on destination
 
-    // Remove the task from its original position
-    updatedTasks.splice(source.index, 1);
-    // Insert it at its new position
-    updatedTasks.splice(destination.index, 0, movedTask);
+    // // Remove the task from its original position
+    // updatedTasks.splice(source.index, 1);
+    // // Insert it at its new position
+    // updatedTasks.splice(destination.index, 0, movedTask);
 
-    setTasks(updatedTasks); // Update state
+    // setTasks(updatedTasks); // Update state
 
-    // Update backend with new status
-    axios
-      .put(
-        `${editTaskUrl}/${draggableId}`,
-        { status: destination.droppableId },
-        { withCredentials: true }
-      )
-      .catch((err) => {
-        setError(err.response?.data?.message || "Error updating task status");
-        // Revert state in case of error
-        setTasks(tasks);
-      });
+    // // Update backend with new status
+    // axios
+    //   .put(
+    //     `${editTaskUrl}/${draggableId}`,
+    //     { status: destination.droppableId },
+    //     { withCredentials: true }
+    //   )
+    //   .catch((err) => {
+    //     setError(err.response?.data?.message || "Error updating task status");
+    //     // Revert state in case of error
+    //     setTasks(tasks);
+    //   });
   };
 
   if (loading) {
