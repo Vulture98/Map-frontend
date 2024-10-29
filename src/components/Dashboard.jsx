@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useNavigate } from "react-router-dom";
-import { toast } from 'react-toastify'; // Import toast
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const newTaskUrl = `${apiUrl}/user/task`;
   const editTaskUrl = `${apiUrl}/user/task`;
   const deleteTaskUrl = `${apiUrl}/user/task`;
+  const updateTaskIndexUrl = `${apiUrl}/user/task`;
   const logoutUrl = `${apiUrl}/api/users/logout`;
 
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Dashboard = () => {
     title: "",
     description: "",
     status: "todo",
+    index: 0, // Add index property
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -30,7 +32,7 @@ const Dashboard = () => {
         setTasks(response.data || []);
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching tasks");
-      } finally {
+      } finally {        
         setLoading(false);
       }
     };
@@ -45,7 +47,7 @@ const Dashboard = () => {
   const handleFormToggle = () => {
     setIsFormVisible(!isFormVisible);
     if (isFormVisible) {
-      setNewTask({ title: "", description: "", status: "todo" });
+      setNewTask({ title: "", description: "", status: "todo", index: 0 });
       setEditingTaskId(null);
     }
   };
@@ -66,12 +68,22 @@ const Dashboard = () => {
         );
         setEditingTaskId(null);
       } else {
-        const response = await axios.post(newTaskUrl, newTask, {
-          withCredentials: true,
-        });
+        // Find the last index in the selected status category
+        const lastIndex =
+          tasks
+            .filter((task) => task.status === newTask.status)
+            .reduce((maxIndex, task) => Math.max(maxIndex, task.index), -1) + 1;
+
+        const response = await axios.post(
+          newTaskUrl,
+          { ...newTask, index: lastIndex },
+          {
+            withCredentials: true,
+          }
+        );
         setTasks([...tasks, response.data]);
       }
-      setNewTask({ title: "", description: "", status: "todo" });
+      setNewTask({ title: "", description: "", status: "todo", index: 0 });
       setIsFormVisible(false);
     } catch (err) {
       setError(err.response?.data?.message || "Error saving task");
@@ -83,7 +95,7 @@ const Dashboard = () => {
       if (window.confirm("Are you sure you want to delete this task?")) {
         await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
         setTasks(tasks.filter((task) => task._id !== id));
-      }      
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Error deleting task");
     }
@@ -94,6 +106,7 @@ const Dashboard = () => {
       title: task.title,
       description: task.description,
       status: task.status,
+      index: task.index,
     });
     setEditingTaskId(task._id);
     setIsFormVisible(true);
@@ -102,7 +115,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       await axios.post(logoutUrl, {}, { withCredentials: true });
-      toast.success("Logout successful!"); // Show success message
+      toast.success("Logout successful!");
 
       navigate("/");
     } catch (err) {
@@ -110,49 +123,119 @@ const Dashboard = () => {
     }
   };
 
-  const handleDragEnd = (result) => {
-    console.log(`handleDrag `);
-    // const { destination, source, draggableId } = result;
+  const cons = (array, message) => {
+    console.log(
+      `"${message}":`,
+      array.map((task) => ({
+        title: task.title,
+        index: task.index,
+        status: task.status,
+      }))
+    );
+  };
 
-    // if (
-    //   !destination ||
-    //   (destination.index === source.index &&
-    //     destination.droppableId === source.droppableId)
-    // ) {
-    //   return; // Do nothing if dropped outside or in the same place
-    // }
+  const handleDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
 
-    // // Update task status
-    // const updatedTasks = Array.from(tasks);
-    // const movedTask = updatedTasks.find((task) => task._id === draggableId);
-    // movedTask.status = destination.droppableId; // Update status based on destination
+    // Exit if dropped outside or in the same place
+    if (
+      !destination ||
+      (destination.index === source.index &&
+        destination.droppableId === source.droppableId)
+    ) {
+      return;
+    }
 
-    // // Remove the task from its original position
+    // Deep copy of tasks to avoid mutating state directly
+    const updatedTasks = tasks.map((task) => ({ ...task }));
+    const movedTask = updatedTasks.find((task) => task._id === draggableId);
+    const movedTaskIndex = updatedTasks.findIndex(
+      (task) => task._id === draggableId
+    );    
+
     // updatedTasks.splice(source.index, 1);
-    // // Insert it at its new position
-    // updatedTasks.splice(destination.index, 0, movedTask);
+    updatedTasks.splice(movedTaskIndex, 1);    
 
-    // setTasks(updatedTasks); // Update state
+    const oldIndex = source.index;
+    const newIndex = destination.index;
 
-    // // Update backend with new status
-    // axios
-    //   .put(
-    //     `${editTaskUrl}/${draggableId}`,
-    //     { status: destination.droppableId },
-    //     { withCredentials: true }
-    //   )
-    //   .catch((err) => {
-    //     setError(err.response?.data?.message || "Error updating task status");
-    //     // Revert state in case of error
-    //     setTasks(tasks);
-    //   });
+    if (source.droppableId !== destination.droppableId) {
+      // Moving to another column      
+      updatedTasks.map((task) => {        
+        // index+1 for all index > oldindex in src status
+        if (task.index > oldIndex && task.status === source.droppableId) {
+          task.index -= 1;          
+        } // Shift tasks up
+        if (task.index >= newIndex && task.status === destination.droppableId) {
+          task.index += 1;          
+        } // Shift tasks up
+      });
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      if (newIndex > oldIndex) {      
+        // Update indices for tasks between oldIndex and newIndex
+        updatedTasks.map((task) => {          
+          if (task.index > oldIndex && task.index <= newIndex) {
+            task.index -= 1;            
+          } // Shift tasks up
+        });
+      } else {        
+        // Moving up the list        
+
+        // Update indices for tasks between newIndex and oldIndex
+        updatedTasks.map((task) => {
+          if (task.index < oldIndex && task.index >= newIndex) {
+            task.index += 1; // Shift tasks down            
+          }
+        });
+      }
+    }
+
+    // Update task's status and remove it from its original position
+    movedTask.status = destination.droppableId;
+    movedTask.index = destination.index;
+
+    // Insert task at the new destination index
+    updatedTasks.splice(destination.index, 0, movedTask);    
+    movedTask.index = newIndex;
+
+    // Set tasks state with updated list
+    setTasks(updatedTasks);
+    cons(tasks, "after setTasks***");
+
+    // // Prepare the data to send to the backend
+    // const updatedTasksData = updatedTasks.map((task) => ({
+    //   id: task._id,
+    //   status: task.status,
+    //   index: task.index,
+    // }));
+
+    // Send update to backend
+    try {
+      const response = await axios.put(
+        `${updateTaskIndexUrl}/index/${draggableId}`,
+        {
+          taskId: draggableId, // Sending taskId in the payload
+          newStatus: movedTask.status,
+          newIndex: destination.index,
+        },
+        { withCredentials: true }
+      );
+
+      // (Optional) Bulk update example if your backend supports it
+      // await axios.put(`${updateTaskIndexUrl}/bulk-update`, updatedTasksData, { withCredentials: true });
+    } catch (err) {
+      setError(err.response?.data?.message || "Error updating task status");
+      // Revert to original tasks in case of error
+      setTasks(tasks);
+    }
   };
 
   if (loading) {
     return <div className="p-4">Loading tasks...</div>;
   }
 
-  // Define columns for the drag-and-drop interface
   const columns = ["todo", "in-progress", "done"];
 
   return (
@@ -216,23 +299,19 @@ const Dashboard = () => {
       )}
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex space-x-4">
-          {" "}
-          {/* Flex container for columns */}
-          {/* Create a separate Droppable for each column */}
+        <div className="flex space-x-4">          
           {columns.map((column) => (
-            <Droppable key={column} droppableId={column}>
+            <Droppable droppableId={column} key={column}>
               {(provided) => (
                 <div
-                  className="w-1/3 p-2"
                   ref={provided.innerRef}
                   {...provided.droppableProps}
+                  className="bg-gray-100 rounded p-4 flex-1"
                 >
-                  <h2 className="text-lg font-bold mb-2 capitalize">
-                    {column}
-                  </h2>
+                  <h2 className="font-bold mb-2 capitalize">{column}</h2>
                   {tasks
                     .filter((task) => task.status === column)
+                    .sort((a, b) => a.index - b.index) // Sort by index
                     .map((task, index) => (
                       <Draggable
                         key={task._id}
@@ -241,21 +320,21 @@ const Dashboard = () => {
                       >
                         {(provided) => (
                           <div
-                            className="border p-2 mb-2 bg-white rounded shadow"
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            className="bg-white p-2 rounded mb-2 shadow"
                           >
                             <h3 className="font-semibold">{task.title}</h3>
-                            <p>{task.description}</p>
+                            <p className="mb-2">{task.description}</p>
                             <button
-                              className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded mr-2 mt-2 hover:underline"
+                              className="bg-red-500 text-white px-2 py-1 rounded-md mr-2"
                               onClick={() => handleDelete(task._id)}
                             >
                               Delete
                             </button>
                             <button
-                              className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mt-2hover:underline"
+                              className="bg-blue-500 text-white px-2 py-1 rounded-md"
                               onClick={() => handleEdit(task)}
                             >
                               Edit
@@ -264,7 +343,7 @@ const Dashboard = () => {
                         )}
                       </Draggable>
                     ))}
-                  {provided.placeholder} {/* Placeholder for proper spacing */}
+                  {provided.placeholder}
                 </div>
               )}
             </Droppable>
