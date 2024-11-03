@@ -50,7 +50,7 @@ const Dashboard = () => {
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching tasks");
       } finally {
-        console.log(`"from useeff tasks":`, tasks);
+        // console.log(`"from useeff tasks":`, tasks);
         setLoading(false);
       }
     };
@@ -59,7 +59,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // console.log('Tasks updated from useEffect()',);
-    cons(tasks, "Tasks updated from useEffect()");
+    // cons(tasks, "Tasks updated from useEffect()");
   }, [tasks]);
 
   const handleInputChange = (e) => {
@@ -160,10 +160,10 @@ const Dashboard = () => {
   };
 
   const handleDragEnd = async (result) => {
-    console.log(`"result":`, result);
+    // console.log(`"result":`, result);
     // console.log(`"tasks":`, tasks);
-    console.log(`"result-source: "`, result.source);
-    console.log(`result-destiny: "`, result.destination);
+    // console.log(`"result-source: "`, result.source);
+    // console.log(`result-destiny: "`, result.destination);
     const { destination, source, draggableId } = result;
 
     // Exit if dropped outside or in the same place
@@ -183,28 +183,28 @@ const Dashboard = () => {
     const movedTaskIndex = updatedTasks.findIndex(
       (task) => task._id === draggableId
     );
-    cons(updatedTasks, "updatedTasks at start");
+    // cons(updatedTasks, "updatedTasks at start");
 
     // updatedTasks.splice(source.index, 1);
     updatedTasks.splice(movedTaskIndex, 1);
-    cons(updatedTasks, "updatedTasks after filter");
+    // cons(updatedTasks, "updatedTasks after filter");
 
     const oldIndex = source.index;
     const newIndex = destination.index;
 
     if (source.droppableId !== destination.droppableId) {
       // Moving to another column
-      console.log(`source != destination  MOVING TO ANOTHER STATUS=== === ===`);
+      // console.log(`source != destination  MOVING TO ANOTHER STATUS=== === ===`);
       updatedTasks.map((task) => {
         // console.log(`task title: ${task.title}, task index ${task.index} `);
         // index+1 for all index > oldindex in src status
         if (task.index > oldIndex && task.status === source.droppableId) {
           task.index -= 1;
-          console.log(`task `, task.title, "index-1");
+          // console.log(`task `, task.title, "index-1");
         } // Shift tasks up
         if (task.index >= newIndex && task.status === destination.droppableId) {
           task.index += 1;
-          console.log(`task `, task.title, "index+1");
+          // console.log(`task `, task.title, "index+1");
         } // Shift tasks up
       });
     }
@@ -215,10 +215,10 @@ const Dashboard = () => {
 
         // Update indices for tasks between oldIndex and newIndex
         updatedTasks.map((task) => {
-          console.log(`task title: ${task.title}, task index ${task.index} `);
+          // console.log(`task title: ${task.title}, task index ${task.index} `);
           if (task.index > oldIndex && task.index <= newIndex) {
             task.index -= 1;
-            console.log(`task `, task.title, "index-1");
+            // console.log(`task `, task.title, "index-1");
           } // Shift tasks up
         });
       } else {
@@ -230,7 +230,7 @@ const Dashboard = () => {
         updatedTasks.map((task) => {
           if (task.index < oldIndex && task.index >= newIndex) {
             task.index += 1; // Shift tasks down
-            console.log(`task `, task.title, "index+1");
+            // console.log(`task `, task.title, "index+1");
           }
         });
       }
@@ -239,20 +239,20 @@ const Dashboard = () => {
     // Update task's status and remove it from its original position
     movedTask.status = destination.droppableId;
     movedTask.index = destination.index;
-    console.log(
-      `"src.index":`,
-      source.index,
-      `"destiny.index":`,
-      destination.index,
-      `"movedTask.status":`,
-      movedTask.status,
-      `"movedTask.index":`,
-      movedTask.index
-    );
+    // console.log(
+    //   `"src.index":`,
+    //   source.index,
+    //   `"destiny.index":`,
+    //   destination.index,
+    //   `"movedTask.status":`,
+    //   movedTask.status,
+    //   `"movedTask.index":`,
+    //   movedTask.index
+    // );
 
     // Insert task at the new destination index
     updatedTasks.splice(destination.index, 0, movedTask);
-    cons(updatedTasks, "updatedTasks after splice destiny");
+    // cons(updatedTasks, "updatedTasks after splice destiny");
     movedTask.index = newIndex;
 
     ////////// Update indices in both the source and destination columns for consistency
@@ -267,7 +267,7 @@ const Dashboard = () => {
 
     // Set tasks state with updated list
     setTasks(updatedTasks);
-    cons(tasks, "after setTasks***");
+    // cons(tasks, "after setTasks***");
 
     // Prepare the data to send to the backend
     const updatedTasksData = updatedTasks.map((task) => ({
@@ -290,7 +290,7 @@ const Dashboard = () => {
         { withCredentials: true }
       );
       // console.log(`"response.data":`, response.data);
-      cons(response.data, "response.data");
+      // cons(response.data, "response.data");
       // setTasks(response.data);
 
       // (Optional) Bulk update example if your backend supports it
