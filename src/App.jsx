@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import { ToastContainer } from 'react-toastify'; // For toast notifications
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
@@ -21,7 +22,7 @@ const App = () => {
           </Routes>
         </main>
         <Footer />
-        <ToastContainer /> {/* Toast notifications */}
+        <ToastContainer /> 
       </div>
     </Router>
   );

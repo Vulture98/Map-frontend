@@ -1,120 +1,132 @@
-// src/components/Login.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation
-import { toast } from "react-toastify"; // Import toast
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import GoogleLoginComponent from "./GoogleLoginComponent";
+import { FaEnvelope, FaLock } from "react-icons/fa"; // Import icons
 
 const Login = () => {
-  const apiUrl = import.meta.env.VITE_API_URL; // Declare apiUrl here
+  const apiUrl = import.meta.env.VITE_API_URL;
   const loginUrl = `${apiUrl}/api/users/auth`;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null); // State to handle errors
-  const navigate = useNavigate(); // Hook for navigation
+  const [email, setEmail] = useState("drag@example.com");
+  const [password, setPassword] = useState("drag");
+  const [error, setError] = useState(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null); // Reset error state on new login attempt
+    setError(null);
+    setIsLoggingIn(true);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         loginUrl,
-        {
-          email,
-          password,
-        },
+        { email, password },
         { withCredentials: true }
-      ); // Include credentials to handle cookies
+      );
 
-      // Handle successful login (JWT token is handled as a cookie)
-      toast.success("Login successful!"); // Show success message
-      navigate("/dashboard"); // Change to your dashboard route
+      toast.success("Login successful!");
+      navigate("/dashboard");
     } catch (err) {
-      // Handle errors here
-      setError("Invalid email or password. Please try again.");
-      toast.error("Login failed. Please check your credentials."); // Show error message
+      const errorMessage =
+        err.response?.data?.message || "Invalid email or password";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  // return (
-  //   <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-  //     <h2 className="text-2xl font-bold mb-6">Login</h2>
-  //     {error && <div className="text-red-600 mb-4">{error}</div>} {/* Display error message */}
-  //     <form className="bg-white p-6 rounded shadow-md w-80" onSubmit={handleLogin}>
-  //       <input
-  //         type="email"
-  //         placeholder="Email"
-  //         className="border mb-4 p-2 w-full rounded"
-  //         value={email}
-  //         onChange={(e) => setEmail(e.target.value)}
-  //         required
-  //       />
-  //       <input
-  //         type="password"
-  //         placeholder="Password"
-  //         className="border mb-4 p-2 w-full rounded"
-  //         value={password}
-  //         onChange={(e) => setPassword(e.target.value)}
-  //         required
-  //       />
-  //       <button type="submit" className="bg-blue-600 text-white p-2 w-full rounded hover:bg-blue-700 transition">
-  //         Login
-  //       </button>
-  //     </form>
-  //     <div className="bg-blue-400">
-  //       <GoogleLoginComponent
-  //         // style={{ marginTop: '20px' }} // Optional: customize margin
-  //       />
-  //     </div>
-  //     <p className="mt-4 text-gray-600">
-  //       Not a user?{' '}
-  //       <Link to="/register" className="text-blue-600 hover:underline">Register</Link>
-  //     </p>
-  //   </div>
-  // );
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h2 className="text-3xl font-bold mb-6">Login</h2>
-      {error && <div className="text-red-600 mb-4">{error}</div>}{" "}
-      {/* Display error message */}
-      <form
-        className="bg-white p-8 rounded shadow-md w-96"
-        onSubmit={handleLogin}
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          className="border mb-4 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="border mb-4 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-3 w-full rounded-lg hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
-      </form>
-      <div className="mt-4">
-        <GoogleLoginComponent />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-xl shadow-lg">
+        {/* Header */}
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-2">
+            Welcome Back
+          </h2>
+          <p className="text-gray-600">Please sign in to your account</p>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Login Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-4">
+            {/* Email Input */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaEnvelope className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="email"
+                placeholder="Email address"
+                className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Password Input */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaLock className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="password"
+                placeholder="Password"
+                className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          >
+            Sign in
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        {/* Google Login */}
+        <div className="mt-4">
+          <GoogleLoginComponent />
+        </div>
+
+        {/* Register Link */}
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Not registered yet?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+          >
+            Create an account
+          </Link>
+        </p>
       </div>
-      <p className="mt-4 text-gray-600">
-        Not a user?{" "}
-        <Link to="/register" className="text-blue-600 hover:underline">
-          Register
-        </Link>
-      </p>
     </div>
   );
 };
