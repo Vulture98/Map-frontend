@@ -8,8 +8,8 @@ import { FaEnvelope, FaLock } from "react-icons/fa"; // Import icons
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const loginUrl = `${apiUrl}/api/users/auth`;
-  const [email, setEmail] = useState("drag@example.com");
-  const [password, setPassword] = useState("drag");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
