@@ -25,8 +25,8 @@ You can view the live application here: [Map Project](https://map-frontend-d6yw.
 
 - User authentication (login, registration)
 - Task creation, editing, and deletion
-<!-- - Responsive design for various screen sizes -->
-<!-- - Drag-and-drop functionality for tasks -->
+- Drag-and-drop functionality for tasks
+- Responsive design for various screen sizes
 
 ## Technologies Used
 
