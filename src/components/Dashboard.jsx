@@ -117,7 +117,27 @@ const Dashboard = () => {
     try {
       if (window.confirm("Are you sure you want to delete this task?")) {
         await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
-        setTasks(tasks.filter((task) => task._id !== id));
+        // setTasks(tasks.filter((task) => task._id !== id));
+        const deletedTaskIndex = tasks.findIndex((task) => task._id === id);
+        console.log(`"deletedTaskIndex":`, deletedTaskIndex);
+        setTasks(
+          tasks
+            .filter((task) => task._id !== id)
+            .map((task) => {
+              if (task.index > deletedTaskIndex) {
+                return { ...task, index: task.index - 1 };
+              }
+              return task;
+            })
+        );
+        // Send updated tasks to backend
+        const updatedTasksData = tasks.map((task) => ({
+          // _id: task._id,
+          title: task.title,
+          index: task.index,
+          status: task.status,
+        }));
+        console.log(`"updatedTasksData":`, updatedTasksData);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Error deleting task");
