@@ -137,7 +137,9 @@ const Dashboard = () => {
           index: task.index,
           status: task.status,
         }));
-        console.log(`"updatedTasksData":`, updatedTasksData);
+        // issue with below console is this still prints before tasks since setTasks updates after this func ends
+        // console.log(`"updatedTasksData":`, updatedTasksData);
+
       }
     } catch (err) {
       setError(err.response?.data?.message || "Error deleting task");
