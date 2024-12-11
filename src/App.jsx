@@ -12,13 +12,13 @@ import AdminLoginMe from './components/admin2/AdminLoginMe';
 import AdminDashboardMe from './components/admin2/AdminDashboardMe';
 
 // PrivateRoute component to check authentication
-const PrivateRoute = ({ children, role }) => {  
+const PrivateRoute = ({ children }) => {  
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/${role}/verify`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/verify`, {
           withCredentials: true
         });
         console.log(`response:`, response);
@@ -30,19 +30,14 @@ const PrivateRoute = ({ children, role }) => {
     };
 
     verifyAuth();
-  }, [role]);
+  }, []);
 
   if (isAuthenticated === null) {
     // Still checking authentication
     return <div>Loading...</div>;
   }
 
-  if(role === 'admin'){
-    return isAuthenticated ? children : <Navigate to="/admin/loginMe" />;
-  } else if(role === 'user'){
-    return isAuthenticated ? children : <Navigate to={`/`} />;
-  }
-  // return isAuthenticated ? children : <Navigate to={`/${role}/loginMe`} />;
+  return isAuthenticated ? children : <Navigate to={`/admin/loginMe`} />;
 };
 
 const App = () => {
@@ -54,15 +49,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/dashboard"
-              // element={<PrivateRoute role = "users"><Dashboard /></PrivateRoute>}
-            />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/loginMe" element={<AdminLoginMe />} />
             <Route
               path="/admin/dashboardMe"
-              element={<PrivateRoute role = "admin"><AdminDashboardMe /></PrivateRoute>}
+              element={<PrivateRoute><AdminDashboardMe /></PrivateRoute>}
             />
           </Routes>
         </main>

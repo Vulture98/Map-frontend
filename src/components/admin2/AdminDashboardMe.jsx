@@ -112,6 +112,17 @@ const AdminDashboardMe = () => {
     }
   };
 
+  const handleDeleteUser = async (id) => {
+    try {
+      await axios.delete(`${adminUrl}/users/${id}`, { withCredentials: true });
+      setUsers(prevUsers => prevUsers.filter(user => user._id !== id));
+      toast.success('User deleted successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error('Error deleting user');
+    }
+  };
+
   // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -206,7 +217,7 @@ const AdminDashboardMe = () => {
               {currentUsers.map((user, index) => (
                 <div
                   key={user._id}
-                  className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors relative group"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-gray-500 w-8">{indexOfFirstUser + index + 1}.</span>
@@ -220,34 +231,25 @@ const AdminDashboardMe = () => {
                     </span>
                   </div>
 
-                  {actionLoading.userId === user._id ? (
-                    <ButtonSpinner />
-                  ) : (
-                    <div className="flex gap-2">
-                      {user.isSuspended ? (
+                  <div className="flex gap-2">
+                    {user.isSuspended ? (
+                      <button
+                        onClick={() => handletoggleSuspendUser(user._id, false)}
+                        className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition-colors"
+                      >
+                        Unsuspend
+                      </button>
+                    ) : (
+                      !user.isAdmin && (
                         <button
-                          onClick={() => handletoggleSuspendUser(user._id, false)}
-                          className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg transition-colors"
+                          onClick={() => handletoggleSuspendUser(user._id, true)}
+                          className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         >
-                          Unsuspend
+                          Suspend
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => user.isAdmin ?
-                            toast.info("Admin users cannot be suspended") :
-                            handletoggleSuspendUser(user._id, true)
-                          }
-                          className={`text-sm px-3 py-1 rounded-lg transition-colors ${user.isAdmin
-                            ? 'bg-gray-300 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600 text-white'
-                            }`}
-                          title={user.isAdmin ? "Admin users cannot be suspended" : ""}
-                        >
-                          {user.isAdmin ? "Admin" : "Suspend"}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                      )
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
