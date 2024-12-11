@@ -21,7 +21,7 @@ const PrivateRoute = ({ children }) => {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/verify`, {
           withCredentials: true
         });
-        console.log(`response:`, response);
+        // console.log(`response:`, response);
         setIsAuthenticated(response.data.isAuthenticated);
       } catch (error) {
         console.error('Auth verification failed:', error);

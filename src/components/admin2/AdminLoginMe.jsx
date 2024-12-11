@@ -21,11 +21,11 @@ const AdminLoginMe = () => {
         withCredentials: true
       });
 
-      console.log('Login response:', response.data);  // Debug log
+      // console.log('Login response:', response.data);  // Debug log
 
       // Store token in localStorage
       if (response.data.token) {
-        console.log('Storing token:', response.data.token);  // Debug log
+        // console.log('Storing token:', response.data.token);  // Debug log
         localStorage.setItem('token', response.data.token);
         // Set token in axios defaults for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;

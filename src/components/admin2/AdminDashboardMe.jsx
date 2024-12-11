@@ -31,7 +31,7 @@ const AdminDashboardMe = () => {
     try {
       const response = await axios.get(`${adminUrl}/tasks`, { withCredentials: true });
       const tasks = response.data;
-      console.log(`response.data:`, response.data);
+      // console.log(`response.data:`, response.data);
       setTaskStats({
         totalTasks: tasks.length,
         todoTasks: tasks.filter(task => task.status === 'todo').length,
