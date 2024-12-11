@@ -9,16 +9,16 @@ import { FaSpinner } from "react-icons/fa";
 // Add a reusable spinner component
 const LoadingSpinner = () => <FaSpinner className="animate-spin inline mr-2" />;
 
-// Move this outside the component to prevent recreating on each render
-const statusColors = {
-  todo: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  "in-progress": "bg-blue-100 text-blue-800 border-blue-200",
-  done: "bg-green-100 text-green-800 border-green-200",
-};
+// // Move this outside the component to prevent recreating on each render
+// const statusColors = {
+//   todo: "bg-yellow-100 text-yellow-800 border-yellow-200",
+//   "in-progress": "bg-blue-100 text-blue-800 border-blue-200",
+//   done: "bg-green-100 text-green-800 border-green-200",
+// };
 
-const getStatusColor = (status) => {
-  return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-200";
-};
+// const getStatusColor = (status) => {
+//   return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+// };
 
 const Dashboard = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
