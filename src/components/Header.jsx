@@ -3,24 +3,46 @@ import { Menu, X } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { BiLoaderAlt } from "react-icons/bi";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboard = location.pathname === "/dashboard";
+  const adminDashboard = location.pathname === "/admin/dashboardMe";
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = async (role) => {
+    setIsLoggingOut(true);
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/users/logout`,
-        {},
-        { withCredentials: true }
-      );
+      if (role === "user") {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/users/logout`,
+          {},
+          { withCredentials: true }
+        );
+      } else if (role === "admin") {
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/admin/logout`,
+          {},
+          { withCredentials: true }
+        );
+      }
+
+      // Clear localStorage
+      // localStorage.clear();
+      // Clear axios default headers
+      // delete axios.defaults.headers.common['Authorization'];
+
       toast.success("Logout successful!");
-      navigate("/");
-    } catch (err) {
-      toast.error("Error logging out");
+      navigate(role === 'admin' ? '/admin/loginMe' : '/');
+      // navigate("/");
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Failed to logout');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -58,13 +80,17 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="md:flex items-center space-x-6">
-            {isDashboard ? (
+            {isDashboard || adminDashboard ? (
               // Show logout when in dashboard
               <button
-                onClick={handleLogout}
+                onClick={() => handleLogout(isDashboard ? "user" : "admin")}
                 className="px-4 py-2 rounded-lg bg-white text-blue-600 hover:bg-blue-50 transition-colors font-medium"
               >
-                Logout
+                {isLoggingOut ? (
+                  <BiLoaderAlt className="animate-spin text-xl" />
+                ) : (
+                  'Logout'
+                )}
               </button>
             ) : (
               // Show login/register when not in dashboard
@@ -73,7 +99,7 @@ const Header = () => {
                   to="/"
                   className="text-white hover:text-blue-100 transition-colors font-medium"
                 >
-                  {/* Login */}
+                  Login
                 </Link>
                 <Link
                   to="/register"
