@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BiLoaderAlt } from "react-icons/bi";
+import { clearAuthStatus, broadcastAuthChange } from "../utils/auth";
 
 const Header = () => {
   const location = useLocation();
@@ -22,12 +23,16 @@ const Header = () => {
           {},
           { withCredentials: true }
         );
+        clearAuthStatus('user_auth_status');
+        broadcastAuthChange('LOGOUT', 'user');
       } else if (role === "admin") {
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/admin/logout`,
           {},
           { withCredentials: true }
         );
+        clearAuthStatus('admin_auth_status');
+        broadcastAuthChange('LOGOUT', 'admin');
       }
 
       // Clear localStorage

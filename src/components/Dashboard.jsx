@@ -42,7 +42,7 @@ const Dashboard = () => {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => {    
     const fetchTasks = async () => {
       try {
         const response = await axios.get(newTaskUrl, { withCredentials: true });

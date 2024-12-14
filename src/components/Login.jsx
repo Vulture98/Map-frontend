@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleLoginComponent from "./GoogleLoginComponent";
 import { FaEnvelope, FaLock } from "react-icons/fa"; // Import icons
+import { setAuthStatus, broadcastAuthChange } from "../utils/auth";
 
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -25,6 +26,10 @@ const Login = () => {
         { email, password },
         { withCredentials: true }
       );
+      
+      // Set auth status and broadcast login
+      setAuthStatus(true, 'user');
+      broadcastAuthChange('LOGIN', 'user');
 
       toast.success("Login successful!");
       navigate("/dashboard");
