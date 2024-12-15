@@ -119,7 +119,7 @@ const Dashboard = () => {
         await axios.delete(`${deleteTaskUrl}/${id}`, { withCredentials: true });
         // setTasks(tasks.filter((task) => task._id !== id));
         const deletedTaskIndex = tasks.findIndex((task) => task._id === id);
-        console.log(`"deletedTaskIndex":`, deletedTaskIndex);
+        // console.log(`"deletedTaskIndex":`, deletedTaskIndex);
         setTasks(
           tasks
             .filter((task) => task._id !== id)
@@ -170,16 +170,16 @@ const Dashboard = () => {
     }
   };
 
-  const cons = (array, message) => {
-    console.log(
-      `"${message}":`,
-      array.map((task) => ({
-        title: task.title,
-        index: task.index,
-        status: task.status,
-      }))
-    );
-  };
+  // const cons = (array, message) => {
+  //   console.log(
+  //     `"${message}":`,
+  //     array.map((task) => ({
+  //       title: task.title,
+  //       index: task.index,
+  //       status: task.status,
+  //     }))
+  //   );
+  // };
 
   const handleDragEnd = async (result) => {
     // console.log(`"result":`, result);

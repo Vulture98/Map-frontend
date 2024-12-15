@@ -30,7 +30,7 @@ const AdminLoginMe = () => {
         // Set token in axios defaults for future requests
         axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       } else {
-        console.log('No token in response:', response.data);  // Debug log
+        // console.log('No token in response:', response.data);  // Debug log
       }
 
       toast.success('Admin login successful');

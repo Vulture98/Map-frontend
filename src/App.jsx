@@ -82,7 +82,7 @@ const DashboardRoute = () => {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/verifyUser`, {
           withCredentials: true
         });
-        console.log(`user isAuthenticated:`, response.data.isAuthenticated);
+        // console.log(`user isAuthenticated:`, response.data.isAuthenticated);
         setIsAuthenticated(response.data.isAuthenticated);
       } catch (error) {
         console.error('Auth verification failed:', error);
