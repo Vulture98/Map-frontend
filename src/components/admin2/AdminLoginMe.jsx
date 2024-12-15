@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { BiLoaderAlt } from 'react-icons/bi';
 
 const AdminLoginMe = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(import.meta.env.VITE_ADMIN_EMAIL || '');
+  const [password, setPassword] = useState(import.meta.env.VITE_ADMIN_PASSWORD || '');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 

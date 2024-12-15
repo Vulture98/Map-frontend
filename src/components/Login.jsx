@@ -9,8 +9,8 @@ import { setAuthStatus, broadcastAuthChange } from "../utils/auth";
 const Login = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
   const loginUrl = `${apiUrl}/api/users/auth`;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(import.meta.env.VITE_USER_EMAIL || "");
+  const [password, setPassword] = useState(import.meta.env.VITE_USER_PASSWORD || "");
   const [error, setError] = useState(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
