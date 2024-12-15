@@ -44,7 +44,7 @@ const Header = () => {
       // delete axios.defaults.headers.common['Authorization'];
 
       toast.success("Logout successful!");
-      navigate(role === 'admin' ? '/admin/loginMe' : '/');
+      navigate(role === 'admin' ? '/admin/logout/loginMe' : '/logout');
       // navigate("/");
     } catch (error) {
       console.error('Logout failed:', error);
