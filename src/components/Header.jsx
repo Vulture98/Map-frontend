@@ -15,9 +15,11 @@ const Header = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async (role) => {
+    console.log(`isDashboard:`, isDashboard);
     setIsLoggingOut(true);
     try {
       if (role === "user") {
+        console.log(`here in user role logout `);
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/users/logout`,
           {},
@@ -26,6 +28,7 @@ const Header = () => {
         clearAuthStatus('user_auth_status');
         broadcastAuthChange('LOGOUT', 'user');
       } else if (role === "admin") {
+        console.log(`here in admin role logout `);
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/admin/logout`,
           {},
