@@ -122,13 +122,13 @@ const App = () => {
             <Route path="/" element={<LoginRoute />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<DashboardRoute />} />
-            <Route path="/" element={<Login />} />
+            <Route path="/logout" element={<Login />} />
             <Route path="/admin/loginMe" element={<AdminLoginMe />} />
             <Route
               path="/admin/dashboardMe"
               element={<PrivateRoute><AdminDashboardMe /></PrivateRoute>}
             />
-            <Route path="/admin/logout/loginMe" element={<AdminLogoutMe />} />
+            <Route path="/admin/logout/loginMe" element={<AdminLoginMe />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
