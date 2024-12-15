@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -14,7 +14,7 @@ import NotFound from './components/NotFound';
 import {
   getAuthStatus,
   setAuthStatus,
-  clearAuthStatus,      
+  clearAuthStatus,
 } from '../src/utils/auth.js';
 
 
@@ -75,6 +75,7 @@ const LoginRoute = () => {
 
 const DashboardRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -82,16 +83,27 @@ const DashboardRoute = () => {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/verifyUser`, {
           withCredentials: true
         });
-        // console.log(`user isAuthenticated:`, response.data.isAuthenticated);
         setIsAuthenticated(response.data.isAuthenticated);
+        if (!response.data.isAuthenticated) {
+          // Clear any lingering auth state if not authenticated
+          clearAuthStatus('user_auth_status');
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+          navigate('/');
+        }
       } catch (error) {
         console.error('Auth verification failed:', error);
         setIsAuthenticated(false);
+        // Clear auth state on error
+        clearAuthStatus('user_auth_status');
+        localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
+        navigate('/');
       }
     };
 
     verifyAuth();
-  }, []);
+  }, [navigate]);
 
   if (isAuthenticated === null) {
     return <div>Loading...</div>;
