@@ -10,9 +10,16 @@ import { ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import AdminLoginMe from './components/admin2/AdminLoginMe';
 import AdminDashboardMe from './components/admin2/AdminDashboardMe';
+import NotFound from './components/NotFound';
+import {
+  getAuthStatus,
+  setAuthStatus,
+  clearAuthStatus,      
+} from '../src/utils/auth.js';
+
 
 // PrivateRoute component to check authentication
-const PrivateRoute = ({ children }) => {  
+const PrivateRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
@@ -40,6 +47,59 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to={`/admin/loginMe`} />;
 };
 
+const LoginRoute = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/verifyUser`, {
+          withCredentials: true
+        });
+        setIsAuthenticated(response.data.isAuthenticated);
+      } catch (error) {
+        console.error('Auth verification failed:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    verifyAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? <Navigate to="/dashboard" /> : <Login />;
+};
+
+const DashboardRoute = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/verifyUser`, {
+          withCredentials: true
+        });
+        console.log(`user isAuthenticated:`, response.data.isAuthenticated);
+        setIsAuthenticated(response.data.isAuthenticated);
+      } catch (error) {
+        console.error('Auth verification failed:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    verifyAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? <Dashboard /> : <Navigate to="/" />;
+};
+
 const App = () => {
   return (
     <Router>
@@ -47,14 +107,15 @@ const App = () => {
         <Header />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<LoginRoute />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<DashboardRoute />} />
             <Route path="/admin/loginMe" element={<AdminLoginMe />} />
             <Route
               path="/admin/dashboardMe"
               element={<PrivateRoute><AdminDashboardMe /></PrivateRoute>}
             />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />

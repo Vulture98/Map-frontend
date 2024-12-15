@@ -8,6 +8,7 @@ const GoogleLoginComponent = () => {
   const navigate = useNavigate(); // Hook for navigation
 
   const onSuccess = async (credentialResponse) => {
+    // console.log(`onSuccess:`, credentialResponse);
     const token = credentialResponse.credential; // Get the token
     // console.log("Google Token:", token); // Print the token to the console
 
@@ -31,9 +32,13 @@ const GoogleLoginComponent = () => {
 
       const data = await response.json();
       // console.log("Response from backend:", data);
+      if (!data.success) {
+        toast.error(data.message); // Show error message
+        return;
+      }
       if (data.success) {
         toast.success("Login successful!"); // Show success message
-      navigate("/dashboard"); // Change to your dashboard route
+        navigate("/dashboard"); // Change to your dashboard route
         // Fetch user tasks after successful authentication
         // fetchUserTasks(data.userId);
       }
@@ -70,10 +75,11 @@ const GoogleLoginComponent = () => {
   };
 
   const onFailure = (error) => {
+    console.log(`onFailure:`, error);
     console.error("Login Failed:", error); // Handle login failure
   };
 
-//   working stuff
+  //   working stuff
   //   return (
   //     <div className="flex justify-center items-center">
   //       <GoogleLogin
