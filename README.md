@@ -4,6 +4,8 @@
 This is the frontend of the Map Project, built using React.js. The application provides a user-friendly interface for managing tasks, featuring authentication and a responsive design.
 ![Admin Interface](images/admin.png)
 
+![Admin Interface](images/admin.png)
+
 ## Link to backend
 
 https://github.com/Vulture98/Map-backend
@@ -33,6 +35,14 @@ You can view the live application here: [Map Project](https://map-frontend-d6yw.
 ## User Authentication
 
 - ![User Login](images/user-login.png)
+- ![Google Login Popup](images/google-login-popup.gif)
+
+![drag-n-drop](images/drag-n-drop.gif)
+
+## User Authentication
+
+- Google login
+
 - ![Google Login Popup](images/google-login-popup.gif)
 
 ## Technologies Used
